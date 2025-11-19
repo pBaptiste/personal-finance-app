@@ -75,5 +75,9 @@ client/dist/
 client/build/
 client/.env
 
-.md
-.txt
+# Documentation files (guides and notes)
+*.md
+*.txt
+# But keep README files (uncomment if you want to keep README.md)
+# !README.md
+# !**/README.md

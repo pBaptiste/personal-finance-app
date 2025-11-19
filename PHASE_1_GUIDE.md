@@ -706,7 +706,7 @@ curl -X POST http://localhost:5001/api/auth/login \
 ### 12.6 Test Protected Route
 ```bash
 # Replace YOUR_TOKEN with the token from signup/login response
-curl http://localhost:5000/api/auth/me \
+curl http://localhost:5001/api/auth/me \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -725,69 +725,64 @@ export interface ApiError {
   errors?: Array<{ field: string; message: string }>;
 }
 
-class ApiClient {
-  private baseURL: string;
+// Helper function to get token from localStorage
+const getToken = (): string | null => {
+  return localStorage.getItem('token');
+};
 
-  constructor(baseURL: string) {
-    this.baseURL = baseURL;
+// Base request function
+async function request<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const token = getToken();
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
-  private getToken(): string | null {
-    return localStorage.getItem('token');
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    ...options,
+    headers,
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || 'An error occurred');
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
-    const token = this.getToken();
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
+  return data;
+}
 
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+// HTTP method functions
+export const api = {
+  get: <T>(endpoint: string): Promise<T> => {
+    return request<T>(endpoint, { method: 'GET' });
+  },
 
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
-      ...options,
-      headers,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || 'An error occurred');
-    }
-
-    return data;
-  }
-
-  async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET' });
-  }
-
-  async post<T>(endpoint: string, body: any): Promise<T> {
-    return this.request<T>(endpoint, {
+  post: <T>(endpoint: string, body: any): Promise<T> => {
+    return request<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(body),
     });
-  }
+  },
 
-  async put<T>(endpoint: string, body: any): Promise<T> {
-    return this.request<T>(endpoint, {
+  put: <T>(endpoint: string, body: any): Promise<T> => {
+    return request<T>(endpoint, {
       method: 'PUT',
       body: JSON.stringify(body),
     });
-  }
+  },
 
-  async delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
-  }
-}
-
-export const api = new ApiClient(API_URL);
+  delete: <T>(endpoint: string): Promise<T> => {
+    return request<T>(endpoint, { method: 'DELETE' });
+  },
+};
 ```
 
 ### 13.2 Create Auth Utilities
