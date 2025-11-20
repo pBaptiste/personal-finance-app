@@ -2,6 +2,12 @@ import { Form, useActionData, useNavigation, redirect } from "react-router";
 import { api } from "../lib/api";
 import { setToken } from "../lib/auth";
 import type { Route } from "./+types/login";
+import authIllustration from "../images/illustration-authentication.svg"
+import logoLarge from "../images/logo-large.svg"
+import hidePass from "../images/icon-hide-password.svg"
+import showPass from "../images/icon-show-password.svg"
+import { useState } from "react";
+
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
@@ -28,75 +34,78 @@ export default function Login() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
+  const [isPasswordShown, setIsPasswordShown] = useState(false);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-beige-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="text-preset-1 text-center text-grey-900">
-            Sign in to your account
-          </h2>
+    <div className="min-h-screen flex flex-col lg:flex-row gap-4 lg:py-5 lg:px-5 bg-beige-100">
+        <div className="bg-grey-900 py-6 rounded-b-lg lg:hidden">
+            <img src={logoLarge} alt="Logo" className="mx-auto"/>
         </div>
-        <Form method="post" className="mt-8 space-y-6">
-          {actionData?.error && (
-            <div className="rounded-md bg-red p-4">
-              <p className="text-preset-4 text-white">{actionData.error}</p>
-            </div>
-          )}
-          <div className="rounded-md shadow-sm -space-y-px">
+        <div 
+            className="w-[560px] h-[95vh] p-10 hidden lg:flex flex-col justify-between rounded-xl"
+            style={{
+                backgroundImage: `url(${authIllustration})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+            }}
+        >
             <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-grey-300 placeholder-grey-500 text-grey-900 rounded-t-md focus:outline-none focus:ring-cyan focus:border-cyan focus:z-10 text-preset-4"
-                placeholder="Email address"
-              />
+                <img src={logoLarge} alt="Logo" className=""/>
             </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-grey-300 placeholder-grey-500 text-grey-900 rounded-b-md focus:outline-none focus:ring-cyan focus:border-cyan focus:z-10 text-preset-4"
-                placeholder="Password"
-              />
+            <div className="text-white space-y-4">
+                <h2 className="text-preset-1">Keep track of your money and save for your future</h2>
+                <p className="text-preset-4">Personal finance app puts you in control of your spending. Track transactions, set budgets, and add to savings pots easily.</p>
             </div>
-          </div>
+        </div>
+        <div className="flex items-center justify-center flex-1 px-4 lg:px-0">
+            <div className="bg-white rounded-xl py-6 px-5 flex flex-col gap-8 w-full lg:w-140 max-w-140">
+                <h2 className="text-grey-900 text-preset-1">Login</h2>
+                <Form method="post" className="">
+                    <div className="flex flex-col gap-1 mb-4">
+                        <label htmlFor="email" className="text-grey-500 text-preset-5-bold">Email</label>
+                        <input
+                            id="email"
+                            name="email"
+                            autoComplete="email"
+                            required 
+                            type="email"
+                            className="border border-beige-500 rounded-lg py-3 px-5 text-preset-4 text-grey-900 cursor-pointer" />
+                    </div>
+                    <div className="flex flex-col gap-1 mb-8">
+                        <label htmlFor="password" className="text-grey-500 text-preset-5-bold">Password</label>
+                        <div className="relative">
+                            <input
+                                id="password"
+                                name="password"
+                                autoComplete="current-password"
+                                required 
+                                type={isPasswordShown ? "text" : "password"}
+                                className="border border-beige-500 rounded-lg py-3 px-5 text-preset-4 text-grey-900 cursor-pointer w-full -z-10" />
 
-          <div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-preset-3 rounded-md text-white bg-green hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan disabled:opacity-50"
-            >
-              {isSubmitting ? "Signing in..." : "Sign in"}
-            </button>
-          </div>
-
-          <div className="text-center">
-            <p className="text-preset-4 text-grey-500">
-              Don't have an account?{" "}
-              <a
-                href="/signup"
-                className="font-medium text-green hover:opacity-80"
-              >
-                Sign up
-              </a>
-            </p>
-          </div>
-        </Form>
-      </div>
+                                <button 
+                                    onClick={() => setIsPasswordShown(!isPasswordShown)}
+                                    className="absolute z-10 top-1/2 -translate-y-1/2 right-5 cursor-pointer"
+                                    aria-label="Toggle to show or hide password">
+                                    <img src={isPasswordShown ? hidePass : showPass} alt="password visibility icon" className=""/>
+                                </button>
+                        </div>
+                    </div>
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-grey-900 hover:bg-grey-500 text-white text-center py-4 text-preset-4-bold rounded-lg cursor-pointer mb-8 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                        {isSubmitting ? "Logging in..." : "Login"}
+                    </button>
+                    <div className="flex gap-2 justify-center">
+                        <p className="text-grey-500 text-preset-4">Need to create an account?</p>
+                        <a href="/signup" className="text-grey-900 underline text-preset-4-bold mr-2">Sign Up</a>
+                    </div>
+                </Form>
+            </div>
+        </div>
+       
     </div>
   );
 }
