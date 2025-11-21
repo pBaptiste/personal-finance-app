@@ -17,6 +17,9 @@
   --color-grey-500: #696868;
   --color-grey-300: #B3B3B3;
   --color-grey-100: #F2F2F2;
+  
+  /* White */
+  --color-white: #FFFFFF;
 
   /* Secondary Colors */
   --color-green: #277C78;
@@ -180,6 +183,7 @@ body {
 .text-army-green { color: var(--color-army-green); }
 .text-gold { color: var(--color-gold); }
 .text-orange { color: var(--color-orange); }
+.text-white { color: var(--color-white); }
 
 /* Focus styles for accessibility */
 *:focus-visible {
@@ -198,6 +202,10 @@ body {
 /* These work for any color defined in @theme */
 .hover\:bg-red:hover:not(:disabled) {
   background-color: var(--color-red);
+}
+
+.hover\:bg-white:hover:not(:disabled) {
+  background-color: var(--color-white);
 }
 
 .hover\:bg-grey-500:hover:not(:disabled) {
