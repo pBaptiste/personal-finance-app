@@ -51,23 +51,41 @@ export const signup = async (req: AuthRequest, res: Response): Promise<void> => 
 
 export const login = async (req: AuthRequest, res: Response) => {
     try {
+        console.log('Login request body:', req.body);
         const { email, password }: LoginInput = req.body;
 
+        if (!email || !password) {
+            res.status(400).json({ message: 'Email and password are required' });
+            return;
+        }
+
+        // Normalize email to lowercase for lookup (matching User model)
+        const normalizedEmail = email.toLowerCase().trim();
+        
+        console.log('Login attempt for email:', normalizedEmail);
+        console.log('Password provided:', password ? 'Yes' : 'No');
+
         //Find user and select the password
-        const user = await User.findOne({ email }).select('+password');
+        const user = await User.findOne({ email: normalizedEmail }).select('+password');
 
         if(!user) {
+            console.log('User not found for email:', email);
             res.status(401).json({ message: 'Invalid email or password'});
             return;
         }
+
+        console.log('User found, comparing password...');
 
         //check passowrd
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if(!isPasswordValid) {
+            console.log('Password comparison failed for email:', email);
             res.status(401).json({ message: 'Invalid email or password'});
             return;
         }
+
+        console.log('Password valid, generating token...');
 
         //generate token
         const token = generateToken({

@@ -1,7 +1,7 @@
 import { Form, useActionData, useNavigation, Link, useNavigate } from "react-router";
 import { api } from "../lib/api";
 import { setToken } from "../lib/auth";
-import type { Route } from "./+types/login";
+import type { Route } from "./+types/signup";
 import authIllustration from "../images/illustration-authentication.svg"
 import logoLarge from "../images/logo-large.svg"
 import hidePass from "../images/icon-hide-password.svg"
@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
+  const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
@@ -19,7 +20,7 @@ export async function action({ request }: Route.ActionArgs) {
       message: string;
       token: string;
       user: { id: string; name: string; email: string };
-    }>("/auth/login", { email, password });
+    }>("/auth/signup", { name, email, password });
 
     // Return token in response - will be handled client-side
     return {
@@ -28,21 +29,20 @@ export async function action({ request }: Route.ActionArgs) {
       user: response.user,
     };
   } catch (error: any) {
-    console.error('Login action error:', error);
     return {
-      error: error.message || "Login failed. Please try again.",
+      error: error.message || "Signup failed. Please try again.",
     };
   }
 }
 
-export default function Login() {
+export default function SignUp() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const navigate = useNavigate();
   const isSubmitting = navigation.state === "submitting";
   const [isPasswordShown, setIsPasswordShown] = useState(false);
 
-  // Handle successful login client-side
+  // Handle successful signup client-side
   useEffect(() => {
     if (actionData?.success && actionData.token && typeof window !== 'undefined') {
       setToken(actionData.token);
@@ -74,13 +74,23 @@ export default function Login() {
         </div>
         <div className="flex items-center justify-center flex-1 px-4 lg:px-0">
             <div className="bg-white rounded-xl py-6 px-5 flex flex-col gap-8 w-full lg:w-140 max-w-140">
-                <h2 className="text-grey-900 text-preset-1">Login</h2>
-                <Form method="post">
+                <h2 className="text-grey-900 text-preset-1">Sign Up</h2>
+                <Form method="post" className="">
                     {actionData?.error && (
-                        <div className="rounded-md bg-red-50 p-4 mb-4">
-                        <p className="text-preset-5-bold text-red-800">{actionData.error}</p>
-                        </div>
+                            <div className="rounded-md bg-red-50 p-4 mb-4">
+                            <p className="text-preset-5-bold text-red-800">{actionData.error}</p>
+                            </div>
                     )}
+                <div className="flex flex-col gap-1 mb-4">
+                        <label htmlFor="name" className="text-grey-500 text-preset-5-bold">Name</label>
+                        <input
+                            id="name"
+                            name="name"
+                            autoComplete="name"
+                            required 
+                            type="text"
+                            className="border border-beige-500 rounded-lg py-3 px-5 text-preset-4 text-grey-900 cursor-pointer" />
+                    </div>
                     <div className="flex flex-col gap-1 mb-4">
                         <label htmlFor="email" className="text-grey-500 text-preset-5-bold">Email</label>
                         <input
@@ -92,7 +102,7 @@ export default function Login() {
                             className="border border-beige-500 rounded-lg py-3 px-5 text-preset-4 text-grey-900 cursor-pointer" />
                     </div>
                     <div className="flex flex-col gap-1 mb-8">
-                        <label htmlFor="password" className="text-grey-500 text-preset-5-bold">Password</label>
+                        <label htmlFor="password" className="text-grey-500 text-preset-5-bold">Create Password</label>
                         <div className="relative">
                             <input
                                 id="password"
@@ -109,17 +119,18 @@ export default function Login() {
                                     <img src={isPasswordShown ? hidePass : showPass} alt="password visibility icon" className=""/>
                                 </button>
                         </div>
+                        <p className="text-right text-grey-500 text-preset-5">Passwords must be at least 6 characters</p>
                     </div>
                     <button
                         type="submit"
                         disabled={isSubmitting}
                         className="w-full bg-grey-900 hover:bg-grey-500 text-white text-center py-4 text-preset-4-bold rounded-lg cursor-pointer mb-8 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                        {isSubmitting ? "Logging in..." : "Login"}
+                        {isSubmitting ? "Creating Account..." : "Create Account"}
                     </button>
                     <div className="flex gap-2 justify-center">
-                        <p className="text-grey-500 text-preset-4">Need to create an account?</p>
-                        <Link to="/signup" className="text-grey-900 underline underline-offset-4 text-preset-4-bold mr-2">Sign Up</Link>
+                        <p className="text-grey-500 text-preset-4">Already have an account?</p>
+                        <Link to="/login" className="text-grey-900 underline underline-offset-4 text-preset-4-bold mr-2">Login</Link>
                     </div>
                 </Form>
             </div>

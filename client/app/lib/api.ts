@@ -7,6 +7,9 @@ export interface ApiError {
 
 // Helper function to get token from localStorage
 const getToken = (): string | null => {
+  if (typeof window === 'undefined') {
+    return null; // Server-side: no localStorage
+  }
   return localStorage.getItem('token');
 };
 
@@ -33,7 +36,16 @@ async function request<T>(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || 'An error occurred');
+    // Log error details in development
+    if (typeof window !== 'undefined' && import.meta.env.DEV) {
+      console.error('API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        data,
+        endpoint: `${API_URL}${endpoint}`,
+      });
+    }
+    throw new Error(data.message || `Request failed with status ${response.status}`);
   }
 
   return data;
