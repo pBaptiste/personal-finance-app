@@ -1,7 +1,7 @@
-@import "tailwindcss";
-
-/* Import Public Sans font from Google Fonts */
+/* Import Public Sans font from Google Fonts - must come before all other statements */
 @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700&display=swap');
+
+@import "tailwindcss";
 
 @theme {
   /* Font Family */

@@ -110,13 +110,14 @@ export default function SignUp() {
                                 autoComplete="current-password"
                                 required 
                                 type={isPasswordShown ? "text" : "password"}
-                                className="border border-beige-500 rounded-lg py-3 px-5 text-preset-4 text-grey-900 cursor-pointer w-full -z-10" />
+                                className="border border-beige-500 rounded-lg py-3 px-5 text-preset-4 text-grey-900 cursor-pointer w-full" />
 
                                 <button 
+                                    type="button"
                                     onClick={() => setIsPasswordShown(!isPasswordShown)}
                                     className="absolute z-10 top-1/2 -translate-y-1/2 right-5 cursor-pointer"
                                     aria-label="Toggle to show or hide password">
-                                    <img src={isPasswordShown ? hidePass : showPass} alt="password visibility icon" className=""/>
+                                    <img src={isPasswordShown ? hidePass : showPass} alt="password visibility icon"/>
                                 </button>
                         </div>
                         <p className="text-right text-grey-500 text-preset-5">Passwords must be at least 6 characters</p>

@@ -7,5 +7,8 @@ export default [
   layout("routes/_layout.tsx", [
     index("routes/home.tsx"),
     route("/transactions", "routes/transactions.tsx"),
+    route("/budget", "routes/budget.tsx"),
+    route("/pots", "routes/pots.tsx"),
+    route("/recurring", "routes/recurring.tsx"),
   ])
 ] satisfies RouteConfig;

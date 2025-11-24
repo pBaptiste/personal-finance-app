@@ -17,7 +17,7 @@ const navItems: NavItem[] = [
     { name: "Transactions", path: "/transactions", icon: TransactionIcon },
     { name: "Budget", path: "/budget", icon: BudgetIcon },
     { name: "Pots", path: "/pots", icon: PotsIcon },
-    { name: "Recurring Bills", path: "/recurring-bills", icon: BillsIcon },
+    { name: "Recurring Bills", path: "/recurring", icon: BillsIcon },
   ];
 
 export default function Navbar() {
@@ -37,7 +37,10 @@ export default function Navbar() {
                             const IconComponent = item.icon;
                             return (
                                 <li key={item.path}>
-                                    <Link to={item.path} className={`text-white`}>
+                                    <Link 
+                                        to={item.path} 
+                                        className={`inline-block text-white rounded-lg focus:outline-none focus-visible:outline-2 focus-visible:outline-blue focus-visible:outline-offset-2`}
+                                    >
                                         <div className={`pt-2 pb-3 px-[22.3px] rounded-t-lg border-b-4 md:flex md:flex-col md:items-center md:gap-1 md:px-[25.5px] md:min-w-[104px] group ${isActive(item.path) ? "border-green bg-beige-100" : "border-grey-900"}`}>
                                             <IconComponent 
                                                 className={`w-6 h-6 ${isActive(item.path) ? "fill-green" : "fill-grey-300 group-hover:fill-white"}`}
