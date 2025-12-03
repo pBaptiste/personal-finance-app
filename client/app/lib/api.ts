@@ -16,13 +16,20 @@ const getToken = (): string | null => {
 // Base request function
 async function request<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  providedToken?: string | null,
+  cookieHeader?: string | null
 ): Promise<T> {
-  const token = getToken();
+  const token = providedToken !== undefined ? providedToken : getToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
+
+  // Forward cookies if provided (for server-side requests)
+  if (cookieHeader) {
+    headers['Cookie'] = cookieHeader;
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -31,6 +38,7 @@ async function request<T>(
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers,
+    credentials: 'include', // Include cookies in the request
   });
 
   const data = await response.json();
@@ -53,25 +61,25 @@ async function request<T>(
 
 // HTTP method functions
 export const api = {
-  get: <T>(endpoint: string): Promise<T> => {
-    return request<T>(endpoint, { method: 'GET' });
+  get: <T>(endpoint: string, token?: string | null, cookieHeader?: string | null): Promise<T> => {
+    return request<T>(endpoint, { method: 'GET' }, token, cookieHeader);
   },
 
-  post: <T>(endpoint: string, body: any): Promise<T> => {
+  post: <T>(endpoint: string, body: any, token?: string | null, cookieHeader?: string | null): Promise<T> => {
     return request<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(body),
-    });
+    }, token, cookieHeader);
   },
 
-  put: <T>(endpoint: string, body: any): Promise<T> => {
+  put: <T>(endpoint: string, body: any, token?: string | null, cookieHeader?: string | null): Promise<T> => {
     return request<T>(endpoint, {
       method: 'PUT',
       body: JSON.stringify(body),
-    });
+    }, token, cookieHeader);
   },
 
-  delete: <T>(endpoint: string): Promise<T> => {
-    return request<T>(endpoint, { method: 'DELETE' });
+  delete: <T>(endpoint: string, token?: string | null, cookieHeader?: string | null): Promise<T> => {
+    return request<T>(endpoint, { method: 'DELETE' }, token, cookieHeader);
   },
 };
