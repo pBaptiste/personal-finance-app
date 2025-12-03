@@ -5,6 +5,7 @@ export interface Transaction {
     category: string;
     amount: number;
     transactionDate: string;
+    type: 'income' | 'expense';
 }
 
 export interface CreateTransactionInput {

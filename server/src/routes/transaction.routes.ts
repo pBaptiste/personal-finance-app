@@ -12,10 +12,7 @@ const router = express.Router();
 // All routes require authentication
 router.use(protect);
 
-router.get('/', (req, res, next) => {
-    console.log('GET /api/transactions route hit');
-    next();
-}, getTransactions);
+router.get('/', validate(transactionQuerySchema, 'query'), getTransactions);
 router.post('/', validate(createTranasctionSchema), createTransaction);
 
 export default router;

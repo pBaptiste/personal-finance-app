@@ -2,7 +2,7 @@ import { api } from "../api";
 import type { Transaction, CreateTransactionInput, UpdateTransactionInput, TransactionQueryParams, TransactionsResponse, MonthlySummary } from "../types/transaction"
 
 export const transactionApi = {
-    getAll: (params?: TransactionQueryParams): Promise<TransactionsResponse> => {
+    getAll: (params?: TransactionQueryParams, token?: string | null, cookieHeader?: string | null): Promise<TransactionsResponse> => {
         //Create a new instance of URLSearchParams to construct safe URL query strings
         const queryString = new URLSearchParams();
        //Check if params object is provided
@@ -19,7 +19,7 @@ export const transactionApi = {
         //Convert to a real query string
         const query = queryString.toString();
         //Make the Actual API Request
-        return api.get<TransactionsResponse>(`/transactions${query ? `?${query}` : ''}`);
+        return api.get<TransactionsResponse>(`/transactions${query ? `?${query}` : ''}`, token, cookieHeader);
     },
 
     getById: (id: string): Promise<{ transaction: Transaction }> => {

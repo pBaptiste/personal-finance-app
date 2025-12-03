@@ -2,22 +2,17 @@ import { Form, useActionData, useNavigation } from "react-router";
 import { useState, useEffect } from "react";
 import closeModal from "../../images/icon-close-modal.svg";
 import Dropdown, { type DropdownOption } from "../ui/Dropdown";
+import type { Transaction } from "~/lib/types/transaction";
 
 interface TransactionFormProps {
-  transaction?: {
-    _id: string;
-    recipientOrSender: string;
-    category: string;
-    amount: number;
-    transactionDate: string;
-    type: 'income' | 'expense';
-  };
+  transaction?: Transaction;
   onClose: () => void;
 }
 
 const categories = [
   'Entertainment',
   'Bills',
+  'Debt',
   'Groceries',
   'Dining Out',
   'Transportation',
@@ -27,6 +22,7 @@ const categories = [
   'Shopping',
   'Gift or Donation',
   'General',
+  'PayCheck',
   'Other',
 ];
 

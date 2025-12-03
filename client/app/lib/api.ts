@@ -41,19 +41,27 @@ async function request<T>(
     credentials: 'include', // Include cookies in the request
   });
 
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (jsonError) {
+    // If response is not JSON, create a simple error object
+    const text = await response.text();
+    throw new Error(`Invalid response from server: ${text || response.statusText}`);
+  }
 
   if (!response.ok) {
     // Log error details in development
-    if (typeof window !== 'undefined' && import.meta.env.DEV) {
+    if (import.meta.env.DEV) {
       console.error('API Error:', {
         status: response.status,
         statusText: response.statusText,
         data,
         endpoint: `${API_URL}${endpoint}`,
+        token: token ? 'present' : 'missing',
       });
     }
-    throw new Error(data.message || `Request failed with status ${response.status}`);
+    throw new Error(data.message || data.error || `Request failed with status ${response.status}`);
   }
 
   return data;

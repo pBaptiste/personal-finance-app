@@ -6,7 +6,8 @@ import { AuthRequest } from "../middleware/auth.middleware";
 export const getTransactions = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const userId = req.user!._id;
-        const query = req.query as unknown as TransactionQueryInput;
+        // Use validatedQuery if available (from validation middleware), otherwise fall back to req.query
+        const query = ((req as any).validatedQuery || req.query) as unknown as TransactionQueryInput;
 
         const filter: any = { userId };
 

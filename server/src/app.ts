@@ -18,14 +18,14 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
-console.log('Auth routes registered');
 app.use('/api/transactions', transactionRoutes);
-console.log('Transaction routes registered');
 
-// Test route to verify transaction routes are working
-app.get('/api/transactions/test', (req, res) => {
-    res.json({ message: 'Transaction routes are working!' });
-});
+// Test route to verify transaction routes are working (development only)
+if (process.env.NODE_ENV === 'development') {
+    app.get('/api/transactions/test', (req, res) => {
+        res.json({ message: 'Transaction routes are working!' });
+    });
+}
 
 //Health check route
 app.get('/api/health', (req, res) => {

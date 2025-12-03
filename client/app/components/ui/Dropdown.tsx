@@ -357,7 +357,6 @@ export default function Dropdown({
                 {isSelected && (
                   <span className="sr-only"> (selected)</span>
                 )}
-                 {/* <span className="border-t block border-grey-900 w-full my-auto"></span> */}
               </li>
             
             );
