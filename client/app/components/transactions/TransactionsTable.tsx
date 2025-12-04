@@ -5,7 +5,7 @@ import { MdDelete } from "react-icons/md";
 interface TransactionsTableProps {
     transactions: Transaction[];
     onEdit: (transaction: Transaction) => void;
-    onDelete: (id: string) => void;
+    onDelete: (transaction: Transaction) => void;
 }
 
 export default function TransactionsTable({ transactions, onEdit, onDelete}: TransactionsTableProps) {
@@ -82,7 +82,7 @@ export default function TransactionsTable({ transactions, onEdit, onDelete}: Tra
                                        <FaPencil />
                                     </button>
                                     <button 
-                                        onClick={() => onDelete(transaction._id)}
+                                        onClick={() => onDelete(transaction)}
                                         className="text-red cursor-pointer text-preset-3 focus:outline-none focus-visible:outline-2 focus-visible:outline-red focus-visible:outline-offset-2 focus-visible:rounded"
                                         aria-label={`Delete transaction with ${transaction.recipientOrSender}`}
                                     >

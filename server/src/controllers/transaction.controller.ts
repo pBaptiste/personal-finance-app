@@ -132,3 +132,80 @@ export const createTransaction = async (req: AuthRequest, res: Response): Promis
         });
     }
 }
+
+export const updateTransaction = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user!._id;
+        const { id } = req.params;
+        const data: UpdateTransactionInput = req.body;
+
+        // Find the transaction and verify ownership
+        const transaction = await Transaction.findOne({ _id: id, userId });
+        
+        if (!transaction) {
+            res.status(404).json({
+                message: 'Transaction not found',
+            });
+            return;
+        }
+
+        // Prepare update data
+        const updateData: any = { ...data };
+
+        // If amount or type is being updated, recalculate the amount
+        if (data.amount !== undefined || data.type !== undefined) {
+            const finalType = data.type || transaction.type;
+            const finalAmount = data.amount !== undefined ? data.amount : Math.abs(transaction.amount);
+            // Ensure amount is negative for expenses
+            updateData.amount = finalType === 'expense' ? -Math.abs(finalAmount) : Math.abs(finalAmount);
+        }
+
+        // Update the transaction
+        const updatedTransaction = await Transaction.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true, runValidators: true }
+        );
+
+        res.json({
+            message: 'Transaction updated successfully',
+            transaction: updatedTransaction,
+        });
+    } catch (error: any) {
+        console.error('Update transaction error:', error);
+        res.status(500).json({
+            message: 'Error updating transaction',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+}
+
+export const deleteTransaction = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user!._id;
+        const { id } = req.params;
+
+        // Find the transaction and verify ownership
+        const transaction = await Transaction.findOne({ _id: id, userId });
+        
+        if (!transaction) {
+            res.status(404).json({
+                message: 'Transaction not found',
+            });
+            return;
+        }
+
+        // Delete the transaction
+        await Transaction.findByIdAndDelete(id);
+
+        res.json({
+            message: 'Transaction deleted successfully',
+        });
+    } catch (error: any) {
+        console.error('Delete transaction error:', error);
+        res.status(500).json({
+            message: 'Error deleting transaction',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+}

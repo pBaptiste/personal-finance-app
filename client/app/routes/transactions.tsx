@@ -1,6 +1,7 @@
 import type { Route } from "./+types/transactions";
 import { useState, useEffect } from "react";
 import TransactionForm from "~/components/transactions/TransactionForm";
+import DeleteConfirmationModal from "~/components/ui/DeleteConfirmationModal";
 import { useActionData, useRevalidator, useLoaderData } from "react-router";
 import { transactionApi } from "~/lib/api/transactions";
 import type { Transaction, TransactionQueryParams } from "~/lib/types/transaction";
@@ -78,6 +79,7 @@ export function meta({}: Route.MetaArgs) {
   }
 
   export async function action({ request }: Route.ActionArgs) {
+    // Read formData first
     const formData = await request.formData();
     const method = request.method;
 
@@ -107,6 +109,9 @@ export function meta({}: Route.MetaArgs) {
 
       if (method === "PUT") {
         const id = formData.get("id") as string;
+        if (!id) {
+          return { error: "Transaction ID is required" };
+        }
         const data = {
           recipientOrSender: formData.get("recipientOrSender") as string,
           category: formData.get("category") as string,
@@ -120,6 +125,9 @@ export function meta({}: Route.MetaArgs) {
 
       if(method === "DELETE") {
         const id = formData.get("id") as string;
+        if (!id) {
+          return { error: "Transaction ID is required" };
+        }
         await transactionApi.delete(id, token, cookieHeader || null);
         return { success: true };
       }
@@ -141,11 +149,13 @@ export function meta({}: Route.MetaArgs) {
     const transactions = loaderData.transactions || [];
     const [ showForm, setShowForm ] = useState(false);
     const [ editingTransaction, setEditingTransaction ] = useState<Transaction | undefined>(undefined);
+    const [ deletingTransaction, setDeletingTransaction ] = useState<Transaction | undefined>(undefined);
 
     useEffect(() => {
       if(actionData?.success) {
         setShowForm(false);
         setEditingTransaction(undefined);
+        setDeletingTransaction(undefined);
         revalidator.revalidate();
       }
     }, [actionData, revalidator])
@@ -155,11 +165,17 @@ export function meta({}: Route.MetaArgs) {
       setShowForm(true);
     };
   
-    const handleDelete = () => {}
+    const handleDelete = (transaction: Transaction) => {
+      setDeletingTransaction(transaction);
+    }
 
     const handleClose = () => {
       setShowForm(false);
       setEditingTransaction(undefined);
+    };
+
+    const handleDeleteClose = () => {
+      setDeletingTransaction(undefined);
     };
     return (
       <div className="p-6 md:p-8 lg:p-10">
@@ -190,7 +206,19 @@ export function meta({}: Route.MetaArgs) {
           showForm && (
             <TransactionForm 
               transaction={editingTransaction}
-              onClose={handleClose} />
+              onClose={handleClose}
+              onSuccess={() => revalidator.revalidate()} />
+          )
+        }
+        
+        {
+          deletingTransaction && (
+            <DeleteConfirmationModal 
+              itemId={deletingTransaction._id}
+              itemName={deletingTransaction.recipientOrSender}
+              itemType="Transaction"
+              onClose={handleDeleteClose}
+              onSuccess={() => revalidator.revalidate()} />
           )
         }
       </div>

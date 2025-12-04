@@ -41,13 +41,20 @@ async function request<T>(
     credentials: 'include', // Include cookies in the request
   });
 
+  // Clone response before reading to allow multiple reads if needed
+  const clonedResponse = response.clone();
+  
   let data;
   try {
     data = await response.json();
   } catch (jsonError) {
-    // If response is not JSON, create a simple error object
-    const text = await response.text();
-    throw new Error(`Invalid response from server: ${text || response.statusText}`);
+    // If response is not JSON, try to read as text from cloned response
+    try {
+      const text = await clonedResponse.text();
+      throw new Error(`Invalid response from server: ${text || response.statusText}`);
+    } catch (textError) {
+      throw new Error(`Invalid response from server: ${response.statusText}`);
+    }
   }
 
   if (!response.ok) {

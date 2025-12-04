@@ -1,5 +1,6 @@
 import { Form, useActionData, useNavigation } from "react-router";
 import { useState, useEffect } from "react";
+import { motion } from "motion/react";
 import closeModal from "../../images/icon-close-modal.svg";
 import Dropdown, { type DropdownOption } from "../ui/Dropdown";
 import type { Transaction } from "~/lib/types/transaction";
@@ -7,36 +8,55 @@ import type { Transaction } from "~/lib/types/transaction";
 interface TransactionFormProps {
   transaction?: Transaction;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-const categories = [
-  'Entertainment',
-  'Bills',
+const expense = [
+  'Housing',
+  'Utilities',
+  'Entertainment/Recreation',
+  'Dependent Care',
   'Debt',
   'Groceries',
-  'Dining Out',
   'Transportation',
-  'Personal Care',
+  'Personal Care/Clothing',
   'Education',
   'Lifestyle',
   'Shopping',
-  'Gift or Donation',
-  'General',
-  'PayCheck',
+  'Gifts & Donations',
+  'Healthcare/Medical',
+  'Insurance',
   'Other',
 ];
+
+const income = [
+  'Wage/Salary',
+  'Self-employment/Business',
+  'Interest',
+  'Dividends',
+  'Rental',
+  'Capital Gain',
+  'Transfers',
+  'Royalty',
+  'Gift'
+]
 
 const typeOptions: DropdownOption[] = [
   { value: 'expense', label: 'Expense' },
   { value: 'income', label: 'Income' },
 ];
 
-const categoryOptions: DropdownOption[] = categories.map(cat => ({
+const expenseOptions: DropdownOption[] = expense.map(cat => ({
   value: cat,
   label: cat,
 }));
 
-export default function TransactionForm({ transaction, onClose }: TransactionFormProps) {
+const incomeOptions: DropdownOption[] = income.map(cat => ({
+  value: cat,
+  label: cat,
+}));
+
+export default function TransactionForm({ transaction, onClose, onSuccess }: TransactionFormProps) {
   const actionData = useActionData();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
@@ -54,13 +74,30 @@ export default function TransactionForm({ transaction, onClose }: TransactionFor
   useEffect(() => {
     if (actionData?.success) {
       onClose();
+      if (onSuccess) {
+        onSuccess();
+      }
     }
-  }, [actionData, onClose]);
+  }, [actionData, onClose, onSuccess]);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-20 p-5">
+    <motion.div 
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-20 p-5"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClose}
+    >
       {/* Modal  */}
-      <div className="bg-white max-w-140 w-full rounded-xl p-8 max-h-[90vh] overflow-y-auto">
+      <motion.div 
+        className="bg-white max-w-140 w-full rounded-xl p-8 max-h-[90vh] overflow-y-auto"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-grey-900 text-preset-2 md:text-preset-1">
             {transaction ? 'Edit Transaction' : 'Add New Transaction'}
@@ -120,7 +157,7 @@ export default function TransactionForm({ transaction, onClose }: TransactionFor
             name="category"
             label="Category"
             value={formData.category}
-            options={categoryOptions}
+            options={formData.type === 'expense' ? expenseOptions : incomeOptions}
             onChange={(value) => setFormData({ ...formData, category: value })}
             placeholder="Select a category"
             required
@@ -172,8 +209,8 @@ export default function TransactionForm({ transaction, onClose }: TransactionFor
             </button>
        
         </Form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
   
